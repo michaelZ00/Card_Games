@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from blackjack_game import BlackjackGame
+from PIL import Image, ImageTk
 
 class BlackjackGUI:
     def __init__(self, master):
@@ -14,6 +15,9 @@ class BlackjackGUI:
         self.goal_label.pack(pady=10)
 
         self.game = BlackjackGame()
+        self.card_images = {}  # Our card image cache
+        self.load_card_images()
+        self.card_back_image = self.load_specific_card_image("images/card_back.png")
 
         # --- Dealer Frame ---
         self.dealer_frame = tk.Frame(master, bg='darkgreen')
@@ -22,7 +26,7 @@ class BlackjackGUI:
         self.dealer_label = tk.Label(self.dealer_frame, text="Dealer's Hand", font=("Arial", 16, "bold"), bg='darkgreen', fg='white')
         self.dealer_label.pack()
 
-        self.dealer_cards_label = tk.Label(self.dealer_frame, text="", font=("Arial", 14), bg='darkgreen', fg='white', wraplength=700)
+        self.dealer_cards_label = tk.Label(self.dealer_frame, image=None, bg='darkgreen')  # Use image, not text
         self.dealer_cards_label.pack()
 
         self.dealer_score_label = tk.Label(self.dealer_frame, text="Score: 0", font=("Arial", 14), bg='darkgreen', fg='white')
@@ -35,7 +39,7 @@ class BlackjackGUI:
         self.player_label = tk.Label(self.player_frame, text="Player's Hand", font=("Arial", 16, "bold"), bg='darkgreen', fg='white')
         self.player_label.pack()
 
-        self.player_cards_label = tk.Label(self.player_frame, text="", font=("Arial", 14), bg='darkgreen', fg='white', wraplength=700)
+        self.player_cards_label = tk.Label(self.player_frame, image=None, bg='darkgreen')  # Use image, not text
         self.player_cards_label.pack()
 
         self.player_score_label = tk.Label(self.player_frame, text="Score: 0", font=("Arial", 14), bg='darkgreen', fg='white')
@@ -59,27 +63,60 @@ class BlackjackGUI:
 
         self.update_display()
 
+    def load_card_images(self):
+        """Loads all card images and stores them in the cache."""
+        for card in self.game.deck.cards:
+            try:
+                image = Image.open(card.image_path)
+                image = image.resize((75, 110), Image.Resampling.LANCZOS)  # Adjust size as needed
+                photo = ImageTk.PhotoImage(image)
+                self.card_images[str(card)] = photo
+            except FileNotFoundError:
+                print(f"Error: Card image not found at {card.image_path}")
+                self.card_images[str(card)] = None  # Store None if image is missing
+
+    def load_specific_card_image(self, path, size=(75, 110)):
+        """Loads a single image, like the card back."""
+        try:
+            image = Image.open(path)
+            image = image.resize(size, Image.Resampling.LANCZOS)
+            return ImageTk.PhotoImage(image)
+        except FileNotFoundError:
+            print(f"Error: Card image not found at {path}")
+            return None
+
     def update_display(self):
         # Player's hand
-        player_cards_text = ", ".join(str(card) for card in self.game.player.hand)
-        self.player_cards_label.config(text=f"Cards: {player_cards_text}")
-        self.player_score_label.config(text=f"Score: {self.game.get_player_score()}")
+        player_images = [self.card_images.get(str(card)) for card in self.game.player.hand]
+        # Display the last card only for simplicity
+        if player_images:
+            self.player_cards_label.config(image=player_images[-1])
+            self.player_cards_label.image = player_images[-1]  # Keep reference
+        else:
+            self.player_cards_label.config(image=None)
 
+        self.player_score_label.config(text=f"Score: {self.game.get_player_score()}")
+    
         # Dealer's hand
         if self.game.game_over:
-            dealer_cards_text = ", ".join(str(card) for card in self.game.dealer.hand)
+            dealer_images = [self.card_images.get(str(card)) for card in self.game.dealer.hand]
+            if dealer_images:
+                # For simplicity, just show the last card image. A real implementation would composite them.
+                self.dealer_cards_label.config(image=dealer_images[-1])
+                self.dealer_cards_label.image = dealer_images[-1]
             self.dealer_score_label.config(text=f"Score: {self.game.get_dealer_score(hide_first_card=False)}")
         else:
             # Hide dealer's first card
             if len(self.game.dealer.hand) > 1:
-                dealer_cards_text = f"Hidden, {self.game.dealer.hand[1]}"
+                # Show one card face up and one face down
+                self.dealer_cards_label.config(image=self.card_back_image)
+                self.dealer_cards_label.image = self.card_back_image
             else:
-                dealer_cards_text = "Hidden"
+                self.dealer_cards_label.config(image=None)
+
             self.dealer_score_label.config(text=f"Score: {self.game.get_dealer_score(hide_first_card=True)}")
 
-        self.dealer_cards_label.config(text=f"Cards: {dealer_cards_text}")
-
-        self.message_label.config(text=self.game.message)
+        self.message_label.config(text=self.game.message)    
 
         # Update button states
         if self.game.game_over:

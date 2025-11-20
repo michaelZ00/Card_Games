@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 from war_gui import WarGUI
 from blackjack_gui import BlackjackGUI
-# from blackjack_gui import BlackjackGUI
 
 class GameLauncher:
     def __init__(self, master): 
