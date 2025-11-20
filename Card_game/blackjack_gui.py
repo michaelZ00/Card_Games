@@ -9,6 +9,10 @@ class BlackjackGUI:
         master.geometry("800x600")
         master.configure(bg='darkgreen')
 
+        # --- Game Goal Description ---
+        self.goal_label = tk.Label(master, text="Goal: Get as close to 21 as possible without going over, and beat the dealer.", font=("Arial", 12), bg='darkgreen', fg='white', wraplength=700)
+        self.goal_label.pack(pady=10)
+
         self.game = BlackjackGame()
 
         # --- Dealer Frame ---
