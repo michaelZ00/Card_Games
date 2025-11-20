@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox
 from PIL import Image, ImageTk
 import os
-from game import Game
+from game import WarGame
 
 class WarGUI:
     def __init__(self, master):
@@ -58,7 +58,7 @@ class WarGUI:
                 name = f"Player {i+1}"
             player_names.append(name)
 
-        self.game = Game(player_names)
+        self.game = WarGame(player_names)
         self.create_player_ui()
         self.update_display()
 

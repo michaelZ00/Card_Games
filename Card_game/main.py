@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from war_gui import WarGUI
-# We will create these files in the next steps
+from blackjack_gui import BlackjackGUI
 # from blackjack_gui import BlackjackGUI
 
 class GameLauncher:
@@ -27,10 +27,9 @@ class GameLauncher:
         app = WarGUI(war_window)
 
     def play_blackjack(self):
-        # This will launch the Blackjack game GUI
-        # We would need to create blackjack_gui.py containing the BlackjackGUI class
-        print("Launching Blackjack... (GUI code would go in blackjack_gui.py)")
-        messagebox.showinfo("Launcher", "Launching Blackjack Game! (This would open a new window)")
+        # Create a new window for the Blackjack game
+        blackjack_window = tk.Toplevel(self.master)
+        app = BlackjackGUI(blackjack_window)
 
 
 if __name__ == "__main__":

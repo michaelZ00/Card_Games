@@ -1,7 +1,7 @@
 from deck import Deck
 from player import Player
 
-class Game:
+class WarGame:
     """
     Manages the game of War.
     """
